@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log("PORT from .env:", process.env.PORT);
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT;
@@ -25,8 +26,10 @@ app.use("/user", userRoute);
 
 //Connection with mongoDb
 const connectToMongoDb = require("./connection");
-connectToMongoDb("mongodb://localhost:27017/short-url")
-    .then(()=> console.log("mongoDb connected"))
+connectToMongoDb(process.env.MONGODB_URI)
+    .then(() => console.log("MongoDB Atlas connected"))
     .catch(err => console.error("MongoDB connection failed:", err));
 
-app.listen(PORT, ()=> console.log(`Server Started at PORT = ${PORT}`) );
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
