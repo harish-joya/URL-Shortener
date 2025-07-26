@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Page</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-color: #ff758c;
+    }
+
+    .login-form button {
+      width: 100%;
+      padding: 12px;
+      background: #ff758c;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .login-form button:hover {
+      background: #e25d73;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <form class="login-form" action="/user/login" method="post">
+      <h2>Log In</h2>
+
+      <input type="email" placeholder="Email Address" name="email" required />
+      <input type="password" placeholder="Password" name="password" required />
+      <input type="hidden" name="source" value="user" />
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+</body>
+</html>
