@@ -26,10 +26,8 @@ app.use("/user", userRoute);
 
 //Connection with mongoDb
 const connectToMongoDb = require("./connection");
-connectToMongoDb(process.env.MONGODB_URI)
-    .then(() => console.log("MongoDB Atlas connected"))
+connectToMongoDb("mongodb://localhost:27017/short-url")
+    .then(()=> console.log("mongoDb connected"))
     .catch(err => console.error("MongoDB connection failed:", err));
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+app.listen(PORT, ()=> console.log(`Server Started at PORT = ${PORT}`) );

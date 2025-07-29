@@ -13,15 +13,9 @@ async function handlePostNewShortUrl(req, res) {
     const body = req.body;
     if (!body.url) return res.status(400).json({ error: "URL is required" });
 
-    // Add protocol if missing
-    let originalUrl = body.url.trim();
-    if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
-        originalUrl = "https://" + originalUrl;
-    }
-
     // Check if URL already exists for the user
     const existing = await URL.findOne({
-        redirectURl: originalUrl,
+        redirectURl: body.url,
         createdBy: user._id,
     });
 
@@ -38,11 +32,11 @@ async function handlePostNewShortUrl(req, res) {
     }
 
     // If not existing, create a new short URL
-    const shortId = nanoid();
+    const shortId = shortid();
 
     await URL.create({
         shortId,
-        redirectURl: originalUrl,
+        redirectURl: body.url,
         visitHistory: [],
         createdBy: user._id,
     });
@@ -57,7 +51,6 @@ async function handlePostNewShortUrl(req, res) {
         urls,
     });
 }
-
 
 
 async function handleGetUrlById(req, res) {
