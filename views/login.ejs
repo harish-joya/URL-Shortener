@@ -4,75 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login Page</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .login-container {
-      background: #fff;
-      padding: 2rem 3rem;
-      border-radius: 12px;
-      box-shadow: 0 15px 25px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .login-form h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #333;
-    }
-
-    .login-form input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    .login-form input:focus {
-      outline: none;
-      border-color: #ff758c;
-    }
-
-    .login-form button {
-      width: 100%;
-      padding: 12px;
-      background: #ff758c;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .login-form button:hover {
-      background: #e25d73;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ff758c] to-[#ff7eb3] font-sans">
 
-  <div class="login-container">
-    <form class="login-form" action="/user/login" method="post">
-      <h2>Log In</h2>
+  <div class="bg-white p-8 md:p-10 rounded-xl shadow-lg w-full max-w-md">
+    <form class="space-y-5" action="/user/login" method="post">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Log In</h2>
 
-      <input type="email" placeholder="Email Address" name="email" required />
-      <input type="password" placeholder="Password" name="password" required />
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="Email Address" 
+        required 
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+      />
+
+      <input 
+        type="password" 
+        name="password" 
+        placeholder="Password" 
+        required 
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+      />
+
       <input type="hidden" name="source" value="user" />
 
-      <button type="submit">Login</button>
+      <button 
+        type="submit" 
+        class="w-full bg-pink-500 hover:bg-pink-600 text-white font-medium py-3 rounded-lg transition"
+      >
+        Login
+      </button>
     </form>
   </div>
 
