@@ -22,50 +22,71 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!' });
 });
 
-// Try to load routes one by one
-console.log('Testing route loading...');
+// Load routes with better error handling
+console.log('Loading routes...');
 
-try {
-  console.log('Loading url routes...');
-  const urlRoute = require("./routes/url");
-  app.use("/api/url", urlRoute);
-  console.log('✓ URL routes loaded successfully');
-} catch (error) {
-  console.error('✗ Error loading URL routes:', error.message);
-}
+const loadRoute = (routePath, routeName) => {
+  try {
+    const route = require(routePath);
+    return route;
+  } catch (error) {
+    console.error(`✗ Error loading ${routeName}:`, error.message);
+    // Return a basic router that shows error message
+    const express = require('express');
+    const errorRouter = express.Router();
+    errorRouter.all('*', (req, res) => {
+      res.status(500).json({ 
+        error: `${routeName} route not available due to loading error`,
+        message: error.message 
+      });
+    });
+    return errorRouter;
+  }
+};
 
-try {
-  console.log('Loading user routes...');
-  const userRoute = require("./routes/user");
-  app.use("/api/user", userRoute);
-  console.log('✓ User routes loaded successfully');
-} catch (error) {
-  console.error('✗ Error loading user routes:', error.message);
-}
+// Load and use routes
+const urlRoute = loadRoute("./routes/url", "URL routes");
+app.use("/api/url", urlRoute);
 
-try {
-  console.log('Loading API routes...');
-  const apiRoutes = require("./routes/api");
-  app.use("/api", apiRoutes);
-  console.log('✓ API routes loaded successfully');
-} catch (error) {
-  console.error('✗ Error loading API routes:', error.message);
-}
+const userRoute = loadRoute("./routes/user", "User routes");
+app.use("/api/user", userRoute);
+
+const apiRoutes = loadRoute("./routes/api", "API routes");
+app.use("/api", apiRoutes);
 
 // Serve static files from React in production
 if (process.env.NODE_ENV === 'production') {
   console.log('Setting up static file serving for React...');
   
-  // Serve static files from the frontend build directory
-  app.use(express.static(path.join(__dirname, 'frontend/dist')));
+  // Check if frontend build exists
+  const frontendPath = path.join(__dirname, 'frontend/dist');
+  const fs = require('fs');
   
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    console.log('Serving React app for:', req.path);
-    res.sendFile(path.join(__dirname, 'frontend/dist/index.html'));
-  });
+  if (fs.existsSync(frontendPath)) {
+    app.use(express.static(frontendPath));
+    
+    // Handle React routing, return all requests to React app
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+    console.log('✓ React frontend will be served');
+  } else {
+    console.log('✗ React build not found, serving API only');
+    app.get('/', (req, res) => {
+      res.json({ 
+        message: 'URL Shortener API - React frontend not built',
+        instructions: 'The React frontend build files are missing',
+        endpoints: {
+          health: '/health',
+          test: '/api/test',
+          register: '/api/user',
+          login: '/api/user/login'
+        }
+      });
+    });
+  }
 } else {
-  // In development, just provide a message
+  // In development
   app.get('/', (req, res) => {
     res.json({ 
       message: 'URL Shortener API', 
@@ -90,10 +111,9 @@ if (MONGODB_URI && (MONGODB_URI.startsWith('mongodb://') || MONGODB_URI.startsWi
     .then(() => console.log("MongoDB Atlas connected successfully"))
     .catch(err => {
       console.error("MongoDB connection failed:", err.message);
-      console.log("Application will run in limited mode without database");
     });
 } else {
-  console.log("MongoDB URI not provided or invalid, running without database");
+  console.log("MongoDB URI not provided or invalid");
 }
 
 app.listen(PORT, () => console.log(`Server Started at PORT = ${PORT}`));

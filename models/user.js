@@ -26,8 +26,8 @@ const userSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-// Add index for better performance
-userSchema.index({ email: 1 });
+// Remove the duplicate index - keep only the unique: true in schema
+// userSchema.index({ email: 1 }); // REMOVE THIS LINE
 
 const User = mongoose.model("users", userSchema);
 
