@@ -1,23 +1,33 @@
 {
-  "name": "short-url",
+  "name": "short-url-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend": "cd frontend && npm run dev",
+    "frontend-build": "cd frontend && npm run build",
+    "frontend-install": "cd frontend && npm install",
+    "dev:both": "concurrently \"npm run dev\" \"npm run frontend\"",
+    "install:both": "npm install && npm run frontend-install",
+    "build:both": "npm run frontend-build"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.3",
     "nanoid": "^5.1.5",
     "nodemon": "^3.1.10",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }

@@ -3,13 +3,13 @@ const router = express.Router();
 const {handlePostNewShortUrl,
         handleGetUrlById,
         handleGetAnalyticsById} = require("../controllers/url");
+const { restrictToLoggedInUserOnly } = require("../middleware/auth");
 
-router.post("/", handlePostNewShortUrl);
-
+// FIX: Make URL redirection public (no auth required)
 router.get("/:shortId", handleGetUrlById);
 
-router.get("/analytics/:shortId", handleGetAnalyticsById);
-
-
+// Protected routes (auth required)
+router.post("/", restrictToLoggedInUserOnly, handlePostNewShortUrl);
+router.get("/analytics/:shortId", restrictToLoggedInUserOnly, handleGetAnalyticsById);
 
 module.exports = router;
