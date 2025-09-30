@@ -5,10 +5,10 @@ const {handlePostNewShortUrl,
         handleGetAnalyticsById} = require("../controllers/url");
 const { restrictToLoggedInUserOnly } = require("../middleware/auth");
 
-// FIX: Make URL redirection public (no auth required)
+// Public routes - no authentication required
 router.get("/:shortId", handleGetUrlById);
 
-// Protected routes (auth required)
+// Protected routes - authentication required
 router.post("/", restrictToLoggedInUserOnly, handlePostNewShortUrl);
 router.get("/analytics/:shortId", restrictToLoggedInUserOnly, handleGetAnalyticsById);
 

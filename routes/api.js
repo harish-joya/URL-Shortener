@@ -28,13 +28,9 @@ router.get('/admin/urls', restrictToLoggedInUserOnly, async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
     
-    const urls = await URL.find({})
-      .populate('createdBy', 'name email')
-      .sort({ createdAt: -1 });
-    
+    const urls = await URL.find({}).populate('createdBy', 'name email').sort({ createdAt: -1 });
     res.json({ urls });
   } catch (error) {
-    console.error('Admin URLs error:', error);
     res.status(500).json({ error: 'Failed to fetch URLs' });
   }
 });
