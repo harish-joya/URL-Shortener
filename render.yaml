@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: url-shortener
+    env: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URL
+        value: your_mongodb_connection_string_here
+      - key: secret
+        generateValue: true
+    healthCheckPath: /api/auth/me

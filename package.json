@@ -11,7 +11,8 @@
     "frontend-install": "cd frontend && npm install",
     "dev:both": "concurrently \"npm run dev\" \"npm run frontend\"",
     "install:both": "npm install && npm run frontend-install",
-    "build:both": "npm run frontend-build"
+    "build": "cd frontend && npm install && npm run build",
+    "render-build": "npm run install:both && npm run build"
   },
   "author": "",
   "license": "ISC",
@@ -29,5 +30,9 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

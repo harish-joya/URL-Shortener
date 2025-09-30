@@ -10,13 +10,23 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  // Get base URL from environment or use relative path
+  const getBaseUrl = () => {
+    return import.meta.env.VITE_API_URL || ''
+  }
+
+  const getShortUrl = (shortId) => {
+    const baseUrl = getBaseUrl() || window.location.origin
+    return `${baseUrl}/api/url/${shortId}`
+  }
+
   useEffect(() => {
     fetchUserUrls()
   }, [])
 
   const fetchUserUrls = async () => {
     try {
-      const response = await axios.get('/api/urls', {
+      const response = await axios.get(`${getBaseUrl()}/api/urls`, {
         withCredentials: true
       })
       setUrls(response.data.urls)
@@ -33,7 +43,7 @@ const Dashboard = () => {
     setLoading(true)
     
     try {
-      const response = await axios.post('/api/url', 
+      const response = await axios.post(`${getBaseUrl()}/api/url`, 
         { url: originalUrl },
         { withCredentials: true }
       )
@@ -56,10 +66,6 @@ const Dashboard = () => {
   const copyToClipboard = (shortUrl) => {
     navigator.clipboard.writeText(shortUrl)
     alert('Copied to clipboard!')
-  }
-
-  const getShortUrl = (shortId) => {
-    return `http://localhost:10000/api/url/${shortId}`
   }
 
   const handleLogout = async () => {

@@ -15,13 +15,18 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Get base URL from environment or use relative path
+  const getBaseUrl = () => {
+    return import.meta.env.VITE_API_URL || ''
+  }
+
   useEffect(() => {
     checkAuth()
   }, [])
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get('/api/auth/me', {
+      const response = await axios.get(`${getBaseUrl()}/api/auth/me`, {
         withCredentials: true
       })
       setUser(response.data.user)
@@ -35,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, source = 'user') => {
     try {
-      const response = await axios.post('/api/user/login', 
+      const response = await axios.post(`${getBaseUrl()}/api/user/login`, 
         { email, password, source },
         { withCredentials: true }
       )
@@ -51,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
-      const response = await axios.post('/api/user', 
+      const response = await axios.post(`${getBaseUrl()}/api/user`, 
         { name, email, password },
         { withCredentials: true }
       )
@@ -67,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('/api/auth/logout', {}, 
+      await axios.post(`${getBaseUrl()}/api/auth/logout`, {}, 
         { withCredentials: true }
       )
     } catch (error) {

@@ -10,6 +10,16 @@ const AdminDashboard = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  // Get base URL from environment or use relative path
+  const getBaseUrl = () => {
+    return import.meta.env.VITE_API_URL || ''
+  }
+
+  const getShortUrl = (shortId) => {
+    const baseUrl = getBaseUrl() || window.location.origin
+    return `${baseUrl}/api/url/${shortId}`
+  }
+
   useEffect(() => {
     if (!authLoading && user && user.role === 'admin') {
       fetchAllUrls()
@@ -22,7 +32,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true)
       setError('')
-      const response = await axios.get('/api/admin/urls', {
+      const response = await axios.get(`${getBaseUrl()}/api/admin/urls`, {
         withCredentials: true
       })
       setUrls(response.data.urls)
@@ -45,10 +55,6 @@ const AdminDashboard = () => {
   const copyToClipboard = (shortUrl) => {
     navigator.clipboard.writeText(shortUrl)
     alert('Copied to clipboard!')
-  }
-
-  const getShortUrl = (shortId) => {
-    return `http://localhost:10000/api/url/${shortId}`
   }
 
   const handleLogout = async () => {
