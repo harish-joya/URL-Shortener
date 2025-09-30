@@ -79,6 +79,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Build directories
-dist/
-build/
+# Build directories - EXCEPT frontend/dist for production
+/dist
+/build
+!frontend/dist/
