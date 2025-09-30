@@ -11,7 +11,7 @@
     "frontend-install": "cd frontend && npm install",
     "dev:both": "concurrently \"npm run dev\" \"npm run frontend\"",
     "install:both": "npm install && npm run frontend-install",
-    "build": "cd frontend && npm install && npm run build",
+    "build": "npm run frontend-build",
     "render-build": "npm run install:both && npm run build"
   },
   "author": "",
