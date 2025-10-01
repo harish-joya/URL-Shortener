@@ -42,10 +42,9 @@ router.post('/auth/logout', (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
-// Temporary route to create admin user (remove after use)
+// Create admin user
 router.post('/setup-admin', async (req, res) => {
   try {
-    // Check if admin already exists
     const existingAdmin = await User.findOne({ email: 'admin@urlshortener.com' });
     if (existingAdmin) {
       return res.json({ 
@@ -57,7 +56,6 @@ router.post('/setup-admin', async (req, res) => {
       });
     }
 
-    // Create admin user
     const adminUser = await User.create({
       name: 'System Admin',
       email: 'admin@urlshortener.com',

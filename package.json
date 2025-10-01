@@ -5,34 +5,24 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "frontend": "cd frontend && npm run dev",
-    "frontend-build": "cd frontend && npm run build",
-    "frontend-install": "cd frontend && npm install",
-    "dev:both": "concurrently \"npm run dev\" \"npm run frontend\"",
-    "install:both": "npm install && npm run frontend-install",
-    "build": "npm run frontend-build",
+    "build": "cd frontend && npm run build",
+    "install:both": "npm install && cd frontend && npm install",
     "render-build": "npm run install:both && npm run build"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "express": "^5.1.0",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.3",
-    "nanoid": "^5.1.5",
-    "nodemon": "^3.1.10",
-    "uuid": "^11.1.0"
+    "nanoid": "^5.1.5"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "nodemon": "^3.1.10"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=18.0.0"
   }
 }
