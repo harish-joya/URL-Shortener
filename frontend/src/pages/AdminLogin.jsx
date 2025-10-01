@@ -104,12 +104,6 @@ const AdminLogin = () => {
               User Login
             </Link>
           </div>
-
-          <div className="text-center text-sm text-gray-500">
-            <p>Default admin credentials:</p>
-            <p className="font-mono">Email: admin@urlshortener.com</p>
-            <p className="font-mono">Password: admin123</p>
-          </div>
         </form>
       </div>
     </div>
