@@ -173,7 +173,6 @@
 // app.listen(PORT, () => console.log(`✓ Server Started at PORT = ${PORT}`));
 // console.log(`✓ Server is running in ${process.env.NODE_ENV || 'development'} mode`);
 
-
 require('dotenv').config();
 const express = require("express");
 const app = express();
@@ -207,29 +206,22 @@ app.get('/api/test', (req, res) => {
 });
 
 // -------------------- DEBUG ROUTES --------------------
-console.log('Checking route files...');
+console.log('🚀 Starting URL Shortener Server...');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Node.js Version:', process.version);
 
-['url', 'user', 'api'].forEach(routeFile => {
-  try {
-    require(`./routes/${routeFile}`);
-    console.log(`✓ ${routeFile} routes OK`);
-  } catch (e) {
-    console.error(`✗ ${routeFile} routes error:`, e.message);
-  }
-});
-
-// -------------------- LOAD ROUTES --------------------
+// -------------------- LOAD API ROUTES (MUST COME BEFORE STATIC FILES) --------------------
+console.log('Loading API routes...');
 try {
   const urlRoute = require("./routes/url");
-  app.use("/api/url", urlRoute);
-
   const userRoute = require("./routes/user");
-  app.use("/api/user", userRoute);
-
   const apiRoutes = require("./routes/api");
+
+  app.use("/api/url", urlRoute);
+  app.use("/api/user", userRoute);
   app.use("/api", apiRoutes);
 
-  console.log('✓ All routes loaded successfully');
+  console.log('✓ All API routes loaded successfully');
 } catch (error) {
   console.error('✗ Error loading routes:', error);
   if (process.env.NODE_ENV !== 'production') process.exit(1);
@@ -248,18 +240,26 @@ if (MONGODB_URI && (MONGODB_URI.startsWith('mongodb://') || MONGODB_URI.startsWi
   console.log("⚠️ MongoDB URI not provided or invalid");
 }
 
-// -------------------- STATIC FILE SERVING (REACT) --------------------
+// -------------------- STATIC FILE SERVING (REACT) - UPDATED --------------------
 if (process.env.NODE_ENV === 'production') {
+  console.log('Setting up static file serving for React...');
   const frontendPath = path.join(__dirname, 'frontend/dist');
 
   if (fs.existsSync(frontendPath)) {
+    // Serve static files (CSS, JS, images)
     app.use(express.static(frontendPath));
-    console.log('✓ React frontend will be served');
+    console.log('✓ React static files served');
 
-    // Catch-all for React router
-    app.get('*', (req, res) => {
+    // Serve React app ONLY for non-API routes
+    app.get('*', (req, res, next) => {
+      // If it's an API route, skip React serving
+      if (req.path.startsWith('/api/')) {
+        return next(); // Let the API 404 handler catch this
+      }
+      // Serve React for all non-API routes
       res.sendFile(path.join(frontendPath, 'index.html'));
     });
+    console.log('✓ React frontend will be served for non-API routes');
   } else {
     console.log('✗ React build not found, serving API only');
     app.get('/', (req, res) => {
@@ -269,46 +269,98 @@ if (process.env.NODE_ENV === 'production') {
           health: '/health',
           test: '/api/test',
           register: '/api/user',
-          login: '/api/user/login'
+          login: '/api/user/login',
+          admin: '/api/setup-admin'
         }
       });
     });
   }
 } else {
-  // Development message
+  // Development mode - simple API response
   app.get('/', (req, res) => {
     res.json({
-      message: 'URL Shortener API',
+      message: 'URL Shortener API - Development Mode',
       frontend: 'Run frontend separately on http://localhost:3001',
       endpoints: {
         health: '/health',
         test: '/api/test',
         register: '/api/user',
-        login: '/api/user/login'
+        login: '/api/user/login',
+        admin: '/api/setup-admin',
+        debug: '/api/debug-routes'
+      }
+    });
+  });
+
+  // Debug route for development
+  app.get('/api/debug-routes', (req, res) => {
+    res.json({
+      message: 'Debug: All routes are working',
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString(),
+      routes: {
+        url: '/api/url/*',
+        user: '/api/user/*',
+        api: '/api/*'
       }
     });
   });
 }
 
 // -------------------- ERROR HANDLING --------------------
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    error: process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message
+// 404 handler for API routes (must come after API routes but before React)
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ 
+    error: 'API route not found',
+    path: req.originalUrl,
+    availableEndpoints: {
+      health: '/health',
+      test: '/api/test',
+      register: 'POST /api/user',
+      login: 'POST /api/user/login',
+      shorten: 'POST /api/url',
+      analytics: 'GET /api/url/analytics/:shortId'
+    }
   });
 });
 
-// 404 for API
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'API route not found' });
+// General error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Something went wrong!' 
+      : err.message
+  });
 });
 
-// 404 for everything else in dev
+// 404 for everything else in development
 if (process.env.NODE_ENV !== 'production') {
   app.use('*', (req, res) => {
-    res.status(404).json({ error: 'Route not found' });
+    res.status(404).json({ 
+      error: 'Route not found',
+      path: req.originalUrl,
+      note: 'In production, this would serve the React app'
+    });
   });
 }
 
 // -------------------- START SERVER --------------------
-app.listen(PORT, () => console.log(`✓ Server started on PORT = ${PORT} in ${process.env.NODE_ENV || 'development'} mode`));
+app.listen(PORT, () => {
+  console.log(`✅ Server Started at PORT = ${PORT}`);
+  console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`✅ Health Check: http://localhost:${PORT}/health`);
+  console.log(`✅ API Test: http://localhost:${PORT}/api/test`);
+  
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`✅ Frontend: ${process.env.CLIENT_URL || 'Served from same domain'}`);
+  } else {
+    console.log(`✅ Frontend: http://localhost:3001 (run separately)`);
+  }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  process.exit(0);
+});

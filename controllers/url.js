@@ -108,8 +108,126 @@ async function handleGetAnalyticsById(req, res) {
   });
 }
 
+// NEW ANALYTICS FUNCTIONS - Add these
+async function handleGetUserUrls(req, res) {
+  try {
+    const urls = await URL.find({ createdBy: req.user._id })
+      .sort({ createdAt: -1 })
+      .select('shortId redirectURl visitHistory createdAt');
+    
+    const urlsWithStats = urls.map(url => ({
+      _id: url._id,
+      shortId: url.shortId,
+      shortUrl: `${req.headers.host}/api/url/${url.shortId}`,
+      originalUrl: url.redirectURl,
+      totalClicks: url.visitHistory.length,
+      createdAt: url.createdAt,
+      lastClicked: url.visitHistory.length > 0 
+        ? new Date(Math.max(...url.visitHistory.map(v => v.timeStamp)))
+        : null
+    }));
+
+    res.json({ urls: urlsWithStats });
+  } catch (error) {
+    console.error("Error fetching user URLs:", error);
+    res.status(500).json({ error: "Failed to fetch URLs" });
+  }
+}
+
+async function handleGetDetailedAnalytics(req, res) {
+  try {
+    const shortId = req.params.shortId;
+    const url = await URL.findOne({ 
+      shortId, 
+      createdBy: req.user._id 
+    });
+
+    if (!url) {
+      return res.status(404).json({ error: "URL not found" });
+    }
+
+    // Calculate click statistics
+    const clicksByDate = {};
+    const clicksByHour = new Array(24).fill(0);
+    
+    url.visitHistory.forEach(visit => {
+      const date = new Date(visit.timeStamp).toLocaleDateString();
+      const hour = new Date(visit.timeStamp).getHours();
+      
+      clicksByDate[date] = (clicksByDate[date] || 0) + 1;
+      clicksByHour[hour]++;
+    });
+
+    const analyticsData = {
+      shortId: url.shortId,
+      originalUrl: url.redirectURl,
+      shortUrl: `${req.headers.host}/api/url/${url.shortId}`,
+      totalClicks: url.visitHistory.length,
+      createdAt: url.createdAt,
+      clickData: {
+        byDate: clicksByDate,
+        byHour: clicksByHour,
+        last7Days: getLast7DaysClicks(url.visitHistory),
+        last30Days: getLast30DaysClicks(url.visitHistory)
+      },
+      recentClicks: url.visitHistory
+        .slice(-10)
+        .reverse()
+        .map(visit => ({
+          timestamp: new Date(visit.timeStamp),
+          time: new Date(visit.timeStamp).toLocaleString()
+        }))
+    };
+
+    res.json(analyticsData);
+  } catch (error) {
+    console.error("Error fetching detailed analytics:", error);
+    res.status(500).json({ error: "Failed to fetch analytics" });
+  }
+}
+
+// Helper functions
+function getLast7DaysClicks(visitHistory) {
+  const result = {};
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toLocaleDateString();
+    
+    result[dateStr] = visitHistory.filter(visit => {
+      const visitDate = new Date(visit.timeStamp).toLocaleDateString();
+      return visitDate === dateStr;
+    }).length;
+  }
+  
+  return result;
+}
+
+function getLast30DaysClicks(visitHistory) {
+  const result = {};
+  const today = new Date();
+  
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toLocaleDateString();
+    
+    result[dateStr] = visitHistory.filter(visit => {
+      const visitDate = new Date(visit.timeStamp).toLocaleDateString();
+      return visitDate === dateStr;
+    }).length;
+  }
+  
+  return result;
+}
+
+// FIXED MODULE EXPORTS - Make sure ALL functions are included
 module.exports = {
   handlePostNewShortUrl,
   handleGetUrlById,
-  handleGetAnalyticsById
+  handleGetAnalyticsById,
+  handleGetUserUrls,           // Add this
+  handleGetDetailedAnalytics   // Add this
 };

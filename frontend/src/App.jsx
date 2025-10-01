@@ -6,6 +6,7 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminLogin from './pages/AdminLogin'
+import Analytics from './pages/Analytics'
 
 function ProtectedRoute({ children, adminOnly = false }) {
   // For now, allow access - we'll add real auth later
@@ -32,6 +33,12 @@ function App() {
             <Route path="/admin" element={
               <ProtectedRoute adminOnly={true}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/analytics/:shortId" element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             } />
           </Routes>
